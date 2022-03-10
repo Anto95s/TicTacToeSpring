@@ -44,7 +44,10 @@ const TicTacToe = () => {
 
     const handleInputPosI = (e: any) => setNewPosI(parseInt(e.target.value)); //Setting inputs (two numbers/positions)
     const handleInputPosJ = (e: any) => setNewPosJ(parseInt(e.target.value));
-    const handleAddPositions = () => saveMove(newPosI, newPosJ);
+    const handleAddPositions = () => {
+        saveMove(newPosI, newPosJ);
+        window.location.reload();
+    }
 
     return <div>
         <TextField style={{margin: "20px"}} value={newPosI} type="number" onInput={handleInputPosI}></TextField>
@@ -81,6 +84,7 @@ const saveMove = async (i: number, j: number) => {
 
 const clearMoves = async () => {
     await axios.delete('http://localhost:8080/deleteStates');
+    window.location.reload();
 }
 
 ReactDOM.render(
