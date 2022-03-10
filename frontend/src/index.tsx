@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import ReactDOM from 'react-dom';
-import {Button, TextField} from "@mui/material";
+import {Button} from "@mui/material";
 import axios from 'axios';
 import {JsonToTable} from "react-json-to-table";
 
@@ -35,28 +35,55 @@ const TicTacToe = () => {
     }, []);
 
     const [gameMoves, setGameMoves] = React.useState<GameMoveProps[]>([]);
-    const [newPosI, setNewPosI] = React.useState(-1);
-    const [newPosJ, setNewPosJ] = React.useState(-1);
+    const [newPosI, setNewPosI] = React.useState(0);
+    const [newPosJ, setNewPosJ] = React.useState(0);
 
     React.useEffect(() => {
         getGameMoves().then(setGameMoves);
     }, []);
 
-    const handleInputPosI = (e: any) => setNewPosI(parseInt(e.target.value)); //Setting inputs (two numbers/positions)
-    const handleInputPosJ = (e: any) => setNewPosJ(parseInt(e.target.value));
-    const handleAddPositions = () => {
+    // const handleInputPosI = (e: any) => setNewPosI(parseInt(e.target.value)); //Setting inputs (two numbers/positions)
+    // const handleInputPosJ = (e: any) => setNewPosJ(parseInt(e.target.value));
+    const handleAddPositions = (e: any) => {
+        const strArray = e.target.value.split("");
+        const posI = Number(strArray[0]);
+        const posJ = Number(strArray[1]);
+
+        setNewPosI(posI);
+        setNewPosJ(posJ);
         saveMove(newPosI, newPosJ);
         window.location.reload();
     }
 
     return <div>
-        <TextField style={{margin: "20px"}} value={newPosI} type="number" onInput={handleInputPosI}></TextField>
-        <TextField style={{margin: "20px"}} value={newPosJ} type="number" onInput={handleInputPosJ}></TextField>
-        <Button style={{margin: "20px", marginTop: "28px"}} variant="contained"
-                onClick={handleAddPositions}>Add</Button>
-        <Button style={{backgroundColor: "#FF3333", margin: "20px", marginTop: "28px"}} variant="contained"
-                onClick={clearMoves}>Clear</Button>
+        {/*<TextField style={{margin: "20px"}} value={newPosI} type="number" onInput={handleInputPosI}></TextField>*/}
+        {/*<TextField style={{margin: "20px"}} value={newPosJ} type="number" onInput={handleInputPosJ}></TextField>*/}
 
+        <div style={{display: "table", margin: "0 auto", marginTop: "20px"}}>
+            <div style={{display: "block"}}>
+                <Button value="00" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="01" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="02" variant="outlined" onClick={handleAddPositions}>+</Button>
+            </div>
+            <div style={{display: "block"}}>
+                <Button value="10" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="11" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="12" variant="outlined" onClick={handleAddPositions}>+</Button>
+            </div>
+            <div style={{display: "block"}}>
+                <Button value="20" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="21" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="22" variant="outlined" onClick={handleAddPositions}>+</Button>
+            </div>
+        </div>
+
+        {/*<Button style={{display: "table", margin: "0 auto", marginTop: "20px"}} variant="contained"*/}
+        {/*        onClick={handleAddPositions}>Add</Button>*/}
+
+        <Button style={{backgroundColor: "#FF3333", display: "table", margin: "0 auto", marginTop: "20px"}}
+                variant="contained" onClick={clearMoves}>Clear</Button>
+
+        <hr style={{marginTop: "20px"}}></hr>
         {gameMoves.map((move, id) =>
             <GameMove key={id} currentPlayer={move.currentPlayer}
                       gameTableSerialized={move.gameTableSerialized} winner={move.winner}></GameMove>)
@@ -89,6 +116,7 @@ const clearMoves = async () => {
 
 ReactDOM.render(
     <React.StrictMode>
+        <h2 style={{textAlign: "center", fontFamily: "Arial", color: "#3c3c6a"}}>Tic Tac Toe</h2>
         <TicTacToe></TicTacToe>
     </React.StrictMode>,
     document.getElementById('root')
