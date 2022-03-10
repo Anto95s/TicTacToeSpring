@@ -1,21 +1,21 @@
 package com.example.demo;
 
-import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class GameMoveController {
-
-    public String serializeToString(CellStatus[][] gameTable) {
-        Gson gson = new Gson();
-        return gson.toJson(gameTable);
-    }
 
     private final GameMoveRepository gameMoveRepository;
     private TicTacToeGame game = new TicTacToeGame();
 
     public GameMoveController(GameMoveRepository gameMoveRepository) {
         this.gameMoveRepository = gameMoveRepository;
+    }
+
+    public String serializeToString(CellStatus[][] gameTable) {
+        Gson gson = new Gson();
+        return gson.toJson(gameTable);
     }
 
     @GetMapping("/state")
@@ -25,9 +25,17 @@ public class GameMoveController {
 
     @PostMapping("/move")
     public GameMove play(@RequestParam("posI") int i, @RequestParam("posJ") int j) {
+        String winner = "There's no winner yet!";
+
+        if (game.getTheWinner().isPresent()) {
+            winner = "The winner is " + game.getTheWinner().get() + ", clear the table to start a new game!";
+            GameMove fakeMove = new GameMove(serializeToString(game.gameTable), game.currentPlayer, winner);
+            return gameMoveRepository.save(fakeMove);
+        }
+
         game.makeMove(i, j);
-        GameMove move = new GameMove(serializeToString(game.gameTable), game.currentPlayer);
-        return gameMoveRepository.save(move);
+        GameMove trueMove = new GameMove(serializeToString(game.gameTable), game.currentPlayer, winner);
+        return gameMoveRepository.save(trueMove);
     }
 
     @DeleteMapping("/deleteStates")

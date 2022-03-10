@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import {Button, TextField} from "@mui/material";
 import axios from 'axios';
@@ -7,6 +7,7 @@ import {JsonToTable} from "react-json-to-table";
 type GameMoveProps = {
     currentPlayer: string;
     gameTableSerialized: string;
+    winner: string;
 }
 
 const GameMove = (prop: GameMoveProps) => {
@@ -22,12 +23,17 @@ const GameMove = (prop: GameMoveProps) => {
     }
 
     return <div>
-        <h3>{"Player: " + prop.currentPlayer}</h3>
+        <h2>{"Player: " + prop.currentPlayer}</h2>
+        <h3 style={{color: "blue"}}>{prop.winner}</h3>
         <JsonToTable json={trueJson}/>
     </div>
 }
 
 const TicTacToe = () => {
+    useEffect(() => {
+        document.title = "Tic Tac Toe"
+    }, []);
+
     const [gameMoves, setGameMoves] = React.useState<GameMoveProps[]>([]);
     const [newPosI, setNewPosI] = React.useState(-1);
     const [newPosJ, setNewPosJ] = React.useState(-1);
@@ -36,7 +42,7 @@ const TicTacToe = () => {
         getGameMoves().then(setGameMoves);
     }, []);
 
-    const handleInputPosI = (e: any) => setNewPosI(parseInt(e.target.value));
+    const handleInputPosI = (e: any) => setNewPosI(parseInt(e.target.value)); //Setting inputs (two numbers/positions)
     const handleInputPosJ = (e: any) => setNewPosJ(parseInt(e.target.value));
     const handleAddPositions = () => saveMove(newPosI, newPosJ);
 
@@ -50,7 +56,7 @@ const TicTacToe = () => {
 
         {gameMoves.map((move, id) =>
             <GameMove key={id} currentPlayer={move.currentPlayer}
-                      gameTableSerialized={move.gameTableSerialized}></GameMove>)
+                      gameTableSerialized={move.gameTableSerialized} winner={move.winner}></GameMove>)
         }
     </div>
 }
@@ -60,7 +66,7 @@ const getGameMoves = async () => {
     return result.data as GameMove[];
 }
 
-type GameMove = { currentPlayer: string, gameTableSerialized: string }
+type GameMove = { currentPlayer: string, gameTableSerialized: string, winner: string }
 
 const saveMove = async (i: number, j: number) => {
     const posI = i;
