@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Button, TextField} from "@mui/material";
 import axios from 'axios';
-import { JsonToTable } from "react-json-to-table";
+import {JsonToTable} from "react-json-to-table";
 
 type GameMoveProps = {
     currentPlayer: string;
@@ -10,17 +10,20 @@ type GameMoveProps = {
 }
 
 const GameMove = (prop: GameMoveProps) => {
-    const tableJson = prop.gameTableSerialized;
-    const regexMatch = /\[\[(.+)\],\[(.+)],\[(.+)\]\]/;
+    const reg = /"/g;
+    const str = prop.gameTableSerialized;
+    const tableJson = str.replace(reg, ""); //Remove ""
+
+    const regexMatch = /\[\[(.+)\],\[(.+)],\[(.+)\]\]/; //Take the 3 rows in 3 regex groups
     const trueJson = {
-        "First Row": regexMatch.exec(tableJson)![1],
-        "Second Row": regexMatch.exec(tableJson)![2],
-        "Third Row": regexMatch.exec(tableJson)![3],
+        "First Row": regexMatch.exec(tableJson)![1].replace(/,/g, " "),
+        "Second Row": regexMatch.exec(tableJson)![2].replace(/,/g, " "),
+        "Third Row": regexMatch.exec(tableJson)![3].replace(/,/g, " "),
     }
 
     return <div>
         <h3>{"Player: " + prop.currentPlayer}</h3>
-        <JsonToTable json={trueJson} />
+        <JsonToTable json={trueJson}/>
     </div>
 }
 
@@ -40,8 +43,10 @@ const TicTacToe = () => {
     return <div>
         <TextField style={{margin: "20px"}} value={newPosI} type="number" onInput={handleInputPosI}></TextField>
         <TextField style={{margin: "20px"}} value={newPosJ} type="number" onInput={handleInputPosJ}></TextField>
-        <Button style={{margin: "20px", marginTop: "28px"}} variant="contained" onClick={handleAddPositions}>Add</Button>
-        <Button style={{backgroundColor: "#FF3333", margin: "20px", marginTop: "28px"}} variant="contained" onClick={clearMoves}>Clear</Button>
+        <Button style={{margin: "20px", marginTop: "28px"}} variant="contained"
+                onClick={handleAddPositions}>Add</Button>
+        <Button style={{backgroundColor: "#FF3333", margin: "20px", marginTop: "28px"}} variant="contained"
+                onClick={clearMoves}>Clear</Button>
 
         {gameMoves.map((move, id) =>
             <GameMove key={id} currentPlayer={move.currentPlayer}
