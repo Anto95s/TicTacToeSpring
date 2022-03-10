@@ -1,12 +1,12 @@
-<h2>Getting Started</h2>
+<h1>Getting Started</h1>
 
-<h5>Start _Docker_:</h5>
+<h3>Start _Docker_:</h3>
 
 ```
 docker run -it --name tictactoesql -e MYSQL_ROOT_PASSWORD=admin -p 3306:3306 mysql
 ```
 
-<h5>Install the required _npm_ packages:</h5>
+<h3>Install the required _npm_ packages:</h3>
 
 ```
 npm install @mui/material @emotion/react @emotion/styled
