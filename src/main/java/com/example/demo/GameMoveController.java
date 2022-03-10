@@ -30,4 +30,10 @@ public class GameMoveController {
         return gameMoveRepository.save(move);
     }
 
+    @DeleteMapping("/deleteStates")
+    public void deleteAll() {
+        game = new TicTacToeGame();
+        gameMoveRepository.deleteAll();
+    }
+
 }
