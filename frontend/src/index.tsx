@@ -10,15 +10,6 @@ type GameMoveProps = {
 }
 
 const GameMove = (prop: GameMoveProps) => {
-    // const myJson = {
-    //     "Student": { name: "Jack", email: "jack@xyz.com" },
-    //     "Student id": 888,
-    //     "Sponsors": [
-    //         { name: "john", email: "john@@xyz.com" },
-    //         { name: "jane", email: "jane@@xyz.com" }
-    //     ]
-    // };
-
     const tableJson = prop.gameTableSerialized;
     const regexMatch = /\[\[(.+)\],\[(.+)],\[(.+)\]\]/;
     const trueJson = {
@@ -65,10 +56,6 @@ const getGameMoves = async () => {
 }
 
 type GameMove = { currentPlayer: string, gameTableSerialized: string }
-
-// const saveMove = async (move: GameMove) => {
-//     await axios.post('http://localhost:8080/move', move);
-// }
 
 const saveMove = async (i: number, j: number) => {
     const posI = i;
