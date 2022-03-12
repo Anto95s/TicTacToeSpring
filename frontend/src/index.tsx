@@ -4,13 +4,15 @@ import {Button} from "@mui/material";
 import axios from 'axios';
 import {JsonToTable} from "react-json-to-table";
 
+enum Cell { X = 'X', O = 'O', Empty = 'Empty' }
+
 type GameMoveProps = {
     currentPlayer: string;
     gameTableSerialized: string;
     winner: string;
 }
 
-const GameMove = (prop: GameMoveProps) => {
+const GameMove = (prop: GameMoveProps) => { //Taking status from the database and returning a ready-to-show html
     const reg = /"/g;
     const str = prop.gameTableSerialized;
     const tableJson = str.replace(reg, ""); //Remove ""
@@ -35,53 +37,71 @@ const TicTacToe = () => {
     }, []);
 
     const [gameMoves, setGameMoves] = React.useState<GameMoveProps[]>([]);
-    const [newPosI, setNewPosI] = React.useState(0);
-    const [newPosJ, setNewPosJ] = React.useState(0);
+
+    const storedPlayer = JSON.parse(localStorage.getItem("storedPlayer")!);
+    const [player, setPlayer] = React.useState(storedPlayer == null ? 0 : storedPlayer);
+
+    const storedTable = JSON.parse(localStorage.getItem("storedTable")!); //Getting the table from localstorage (so i have a matrix that persist even if i reload the page)
+    const [table, setTable] = React.useState<Cell[][]>(storedTable == null ? Array(3).fill(Cell.Empty).map(() => Array(3).fill(Cell.Empty)) : storedTable); //If the stored table doesn't exists: creating a const matrix, and filling it with Cell.Empty
 
     React.useEffect(() => {
         getGameMoves().then(setGameMoves);
     }, []);
 
-    // const handleInputPosI = (e: any) => setNewPosI(parseInt(e.target.value)); //Setting inputs (two numbers/positions)
-    // const handleInputPosJ = (e: any) => setNewPosJ(parseInt(e.target.value));
     const handleAddPositions = (e: any) => {
         const strArray = e.target.value.split("");
-        const posI = Number(strArray[0]);
-        const posJ = Number(strArray[1]);
+        const i = Number(strArray[0]);
+        const j = Number(strArray[1]);
 
-        setNewPosI(posI);
-        setNewPosJ(posJ);
-        saveMove(newPosI, newPosJ);
-        window.location.reload();
+        // console.log(table[i][j]);
+        if (table[i][j] == Cell.Empty) {
+            let copy = [...table];
+            copy[i][j] = player == 0 ? Cell.X : Cell.O;
+
+            setTable(copy);
+            localStorage.setItem("storedTable", JSON.stringify(copy));
+
+            let next = player == 0 ? 1 : 0;
+            setPlayer(next);
+            localStorage.setItem("storedPlayer", JSON.stringify(next));
+
+            saveMove(i, j);
+            // console.log(table[i][j]);
+            window.location.reload();
+        }
     }
 
     return <div>
-        {/*<TextField style={{margin: "20px"}} value={newPosI} type="number" onInput={handleInputPosI}></TextField>*/}
-        {/*<TextField style={{margin: "20px"}} value={newPosJ} type="number" onInput={handleInputPosJ}></TextField>*/}
 
         <div style={{display: "table", margin: "0 auto", marginTop: "20px"}}>
             <div style={{display: "block"}}>
-                <Button value="00" variant="outlined" onClick={handleAddPositions}>+</Button>
-                <Button value="01" variant="outlined" onClick={handleAddPositions}>+</Button>
-                <Button value="02" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="00" variant="outlined"
+                        onClick={handleAddPositions}>{table[0][0] == Cell.Empty ? "-" : table[0][0]}</Button>
+                <Button value="01" variant="outlined"
+                        onClick={handleAddPositions}>{table[0][1] == Cell.Empty ? "-" : table[0][1]}</Button>
+                <Button value="02" variant="outlined"
+                        onClick={handleAddPositions}>{table[0][2] == Cell.Empty ? "-" : table[0][2]}</Button>
             </div>
             <div style={{display: "block"}}>
-                <Button value="10" variant="outlined" onClick={handleAddPositions}>+</Button>
-                <Button value="11" variant="outlined" onClick={handleAddPositions}>+</Button>
-                <Button value="12" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="10" variant="outlined"
+                        onClick={handleAddPositions}>{table[1][0] == Cell.Empty ? "-" : table[1][0]}</Button>
+                <Button value="11" variant="outlined"
+                        onClick={handleAddPositions}>{table[1][1] == Cell.Empty ? "-" : table[1][1]}</Button>
+                <Button value="12" variant="outlined"
+                        onClick={handleAddPositions}>{table[1][2] == Cell.Empty ? "-" : table[1][2]}</Button>
             </div>
             <div style={{display: "block"}}>
-                <Button value="20" variant="outlined" onClick={handleAddPositions}>+</Button>
-                <Button value="21" variant="outlined" onClick={handleAddPositions}>+</Button>
-                <Button value="22" variant="outlined" onClick={handleAddPositions}>+</Button>
+                <Button value="20" variant="outlined"
+                        onClick={handleAddPositions}>{table[2][0] == Cell.Empty ? "-" : table[2][0]}</Button>
+                <Button value="21" variant="outlined"
+                        onClick={handleAddPositions}>{table[2][1] == Cell.Empty ? "-" : table[2][1]}</Button>
+                <Button value="22" variant="outlined"
+                        onClick={handleAddPositions}>{table[2][2] == Cell.Empty ? "-" : table[2][2]}</Button>
             </div>
         </div>
 
-        {/*<Button style={{display: "table", margin: "0 auto", marginTop: "20px"}} variant="contained"*/}
-        {/*        onClick={handleAddPositions}>Add</Button>*/}
-
-        <Button style={{backgroundColor: "#FF3333", display: "table", margin: "0 auto", marginTop: "20px"}}
-                variant="contained" onClick={clearMoves}>Clear</Button>
+        <Button style={{backgroundColor: "#7833ff", display: "table", margin: "0 auto", marginTop: "20px"}}
+                variant="contained" onClick={clearMoves}>Start a new Game</Button>
 
         <hr style={{marginTop: "20px"}}></hr>
         {gameMoves.map((move, id) =>
@@ -110,13 +130,16 @@ const saveMove = async (i: number, j: number) => {
 }
 
 const clearMoves = async () => {
+    localStorage.removeItem("storedTable");
+    localStorage.removeItem("storedPlayer");
+
     await axios.delete('http://localhost:8080/deleteStates');
     window.location.reload();
 }
 
 ReactDOM.render(
     <React.StrictMode>
-        <h2 style={{textAlign: "center", fontFamily: "Arial", color: "#3c3c6a"}}>Tic Tac Toe</h2>
+        <h2 style={{textAlign: "center", fontFamily: "Arial", color: "#7833ff"}}>Tic Tac Toe</h2>
         <TicTacToe></TicTacToe>
     </React.StrictMode>,
     document.getElementById('root')
