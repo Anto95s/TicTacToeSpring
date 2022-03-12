@@ -24,6 +24,10 @@ const GameMove = (prop: GameMoveProps) => { //Taking status from the database an
         "Third Row": regexMatch.exec(tableJson)![3].replace(/,/g, " "),
     }
 
+    // if (prop.winner !== "There's no winner yet!") {
+    //     localStorage.setItem("storedEnd", JSON.stringify(true));
+    // }
+
     return <div>
         <h2>{"Player: " + prop.currentPlayer}</h2>
         <h3 style={{color: "blue"}}>{prop.winner}</h3>
@@ -38,11 +42,16 @@ const TicTacToe = () => {
 
     const [gameMoves, setGameMoves] = React.useState<GameMoveProps[]>([]);
 
+    //-------------------- Persistent values ----------------------------------------------------
+    // const storedEnd = JSON.parse(localStorage.getItem("storedEnd")!);
+    // const [end, setEnd] = React.useState(storedEnd == null ? false : storedEnd);
+
     const storedPlayer = JSON.parse(localStorage.getItem("storedPlayer")!);
     const [player, setPlayer] = React.useState(storedPlayer == null ? 0 : storedPlayer);
 
     const storedTable = JSON.parse(localStorage.getItem("storedTable")!); //Getting the table from localstorage (so i have a matrix that persist even if i reload the page)
     const [table, setTable] = React.useState<Cell[][]>(storedTable == null ? Array(3).fill(Cell.Empty).map(() => Array(3).fill(Cell.Empty)) : storedTable); //If the stored table doesn't exists: creating a const matrix, and filling it with Cell.Empty
+    //-----------------------------------------------------------------------------------------
 
     React.useEffect(() => {
         getGameMoves().then(setGameMoves);
@@ -53,7 +62,7 @@ const TicTacToe = () => {
         const i = Number(strArray[0]);
         const j = Number(strArray[1]);
 
-        // console.log(table[i][j]);
+        console.log(JSON.parse(localStorage.getItem("storedEnd")!));
         if (table[i][j] == Cell.Empty) {
             let copy = [...table];
             copy[i][j] = player == 0 ? Cell.X : Cell.O;
@@ -66,12 +75,23 @@ const TicTacToe = () => {
             localStorage.setItem("storedPlayer", JSON.stringify(next));
 
             saveMove(i, j);
-            // console.log(table[i][j]);
             window.location.reload();
         }
     }
 
     return <div>
+
+        <div style={{
+            fontFamily: "Arial",
+            color: "white",
+            display: "table",
+            margin: "0 auto",
+            marginTop: "20px",
+            textAlign: "center",
+            width: "70px",
+            borderRadius: "30px",
+            backgroundColor: "#7833ff"
+        }}>Next: {player == 0 ? "X" : "0"}</div>
 
         <div style={{display: "table", margin: "0 auto", marginTop: "20px"}}>
             <div style={{display: "block"}}>
@@ -99,6 +119,8 @@ const TicTacToe = () => {
                         onClick={handleAddPositions}>{table[2][2] == Cell.Empty ? "-" : table[2][2]}</Button>
             </div>
         </div>
+
+        {/*<div></div>*/}
 
         <Button style={{backgroundColor: "#7833ff", display: "table", margin: "0 auto", marginTop: "20px"}}
                 variant="contained" onClick={clearMoves}>Start a new Game</Button>
@@ -132,6 +154,7 @@ const saveMove = async (i: number, j: number) => {
 const clearMoves = async () => {
     localStorage.removeItem("storedTable");
     localStorage.removeItem("storedPlayer");
+    // localStorage.removeItem("storedEnd");
 
     await axios.delete('http://localhost:8080/deleteStates');
     window.location.reload();
