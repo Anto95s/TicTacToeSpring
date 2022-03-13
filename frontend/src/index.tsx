@@ -120,8 +120,6 @@ const TicTacToe = () => {
             </div>
         </div>
 
-        {/*<div></div>*/}
-
         <Button style={{backgroundColor: "#7833ff", display: "table", margin: "0 auto", marginTop: "20px"}}
                 variant="contained" onClick={clearMoves}>Start a new Game</Button>
 

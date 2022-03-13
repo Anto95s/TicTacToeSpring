@@ -8,6 +8,7 @@ public class GameMoveController {
 
     private final GameMoveRepository gameMoveRepository;
     private TicTacToeGame game = new TicTacToeGame();
+    private boolean winnerPresent = false;
 
     public GameMoveController(GameMoveRepository gameMoveRepository) {
         this.gameMoveRepository = gameMoveRepository;
@@ -25,17 +26,23 @@ public class GameMoveController {
 
     @PostMapping("/move")
     public GameMove play(@RequestParam("posI") int i, @RequestParam("posJ") int j) {
-        String winner = "There's no winner yet!";
+        String winner = "None";
 
         if (game.getTheWinner().isPresent()) {
-            winner = "The winner is " + game.getTheWinner().get() + ", clear the table to start a new game!";
-            GameMove fakeMove = new GameMove(serializeToString(game.gameTable), game.currentPlayer, winner);
-            return gameMoveRepository.save(fakeMove);
+            return new GameMove(serializeToString(game.gameTable), game.currentPlayer, "" + game.getTheWinner().get());
         }
 
         game.makeMove(i, j);
-        GameMove trueMove = new GameMove(serializeToString(game.gameTable), game.currentPlayer, winner);
-        return gameMoveRepository.save(trueMove);
+        if (game.getTheWinner().isPresent()) {
+            winnerPresent = true;
+            return gameMoveRepository.save(new GameMove(serializeToString(game.gameTable), game.currentPlayer, "" + game.getTheWinner().get()));
+        } else
+            return gameMoveRepository.save(new GameMove(serializeToString(game.gameTable), game.currentPlayer, winner));
+    }
+
+    @GetMapping("/end")
+    public String matchIsEnded() {
+        return "a";
     }
 
     @DeleteMapping("/deleteStates")
