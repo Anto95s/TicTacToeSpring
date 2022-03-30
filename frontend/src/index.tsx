@@ -30,10 +30,21 @@ const GameMove = (prop: GameMoveProps) => { //Taking status from the database an
 
     return <div>
         <h2>{"Player: " + prop.currentPlayer}</h2>
-        <h3 style={{color: "blue"}}>{prop.winner}</h3>
+        <h3 style={{color: "rgb(120, 51, 255)"}}>Winner: {prop.winner}</h3>
         <JsonToTable json={trueJson}/>
     </div>
 }
+
+// async function callEndData() {
+//     let x = await getEndData()
+//     console.log(x.data);
+//     return x.data;
+// }
+//
+// async function getEndData() {
+//     const data = (await getEnd());
+//     return data;
+// }
 
 const TicTacToe = () => {
     useEffect(() => {
@@ -79,6 +90,11 @@ const TicTacToe = () => {
         }
     }
 
+    // const EndComponent = () => {
+    //     const data = "" + callEndData();
+    //     return <div>{data}</div>
+    // }
+
     return <div>
 
         <div style={{
@@ -120,6 +136,8 @@ const TicTacToe = () => {
             </div>
         </div>
 
+        {/*<EndComponent></EndComponent>*/}
+
         <Button style={{backgroundColor: "#7833ff", display: "table", margin: "0 auto", marginTop: "20px"}}
                 variant="contained" onClick={clearMoves}>Start a new Game</Button>
 
@@ -152,10 +170,13 @@ const saveMove = async (i: number, j: number) => {
 const clearMoves = async () => {
     localStorage.removeItem("storedTable");
     localStorage.removeItem("storedPlayer");
-    // localStorage.removeItem("storedEnd");
 
     await axios.delete('http://localhost:8080/deleteStates');
     window.location.reload();
+}
+
+const getEnd = async () => {
+    return await axios.get('http://localhost:8080/end').then(res => res);
 }
 
 ReactDOM.render(
